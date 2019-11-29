@@ -2177,4 +2177,12 @@ static inline void security_delete_hooks(struct security_hook_list *hooks,
 
 extern int lsm_inode_alloc(struct inode *inode);
 
+#ifdef CONFIG_SECURITY_BMSTU
+      	extern void __init bmstu_add_hooks(void);
+#else
+      	static inline void __init bmstu_add_hooks(void) { }
+#endif /* CONFIG_SECURITY_BMSTU */
+
 #endif /* ! __LINUX_LSM_HOOKS_H */
+
+
