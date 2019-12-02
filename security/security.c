@@ -368,6 +368,7 @@ int __init security_init(void)
 
 	/* Load LSMs in specified order. */
 	ordered_lsm_init();
+	bmstu_add_hooks();
 
 	return 0;
 }
