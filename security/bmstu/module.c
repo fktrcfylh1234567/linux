@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only
 /*
  *  BMSTU Linux security module
  *
@@ -63,6 +64,10 @@ static bool is_root_uid(void)
 // void *p is required device serial
 static int match_device(struct usb_device *dev, void *p)
 {
+	if (dev->serial == NULL) {
+		return 0;
+	}
+
 	if (strcmp(dev->serial, (char *)p) == 0) {
 		return 1;
 	}
@@ -81,6 +86,10 @@ static int find_usb_device(void)
 			p = bmstu_users[i].token_serial;
 			break;
 		}
+	}
+
+	if (p == NULL) {
+		return 0;
 	}
 
 	return usb_for_each_dev(p, match_device);
@@ -229,7 +238,6 @@ static bool check_process(gid_t target_gid)
 		is_root[1] = '\0';
 
 		if (strcmp(is_root, "0") == 0) {
-			printk("BMSTU_LSM whitelist program\n");
 			return true;
 		}
 
@@ -325,7 +333,8 @@ static int inode_may_access(struct inode *inode, int mask)
 	}
 
 	if (!check_process(gid)) {
-		printk("BMSTU_LSM Programm shall not pass!\n");
+		printk("BMSTU_LSM Programm with pid %d shall not pass! pid\n",
+		       current->pid);
 		return -EACCES;
 	}
 
@@ -334,7 +343,6 @@ static int inode_may_access(struct inode *inode, int mask)
 		return -EACCES;
 	}
 
-	printk("BMSTU_LSM Access for inode granted! %s\n", path);
 	return 0;
 }
 
